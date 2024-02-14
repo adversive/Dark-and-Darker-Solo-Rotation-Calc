@@ -18,15 +18,27 @@ public static class MyTimer
             int parsedInt;
             if (int.TryParse(selection, out parsedInt))
             {
-                if (parsedInt <= 6 || parsedInt >= 1)
+                if (parsedInt <= 6 && parsedInt >= 1)
                 {
                     Count = parsedInt - 1;
                     break;
                 }
-                else { Console.WriteLine("Invalid selection"); }
+                else { Console.Clear(); Console.WriteLine("Invalid selection\n\n"); }
             }
-            else { Console.WriteLine("Invalid selection"); }
+            else { Console.Clear(); Console.WriteLine("Invalid selection\n\n"); }
         }
+
+        Console.Clear();
+
+        var remainingRotasForRS = 4 - Count;
+        if (remainingRotasForRS < 0) remainingRotasForRS = 6 + remainingRotasForRS;
+
+        var remainingRotasForICS = 2 - Count;
+        if (remainingRotasForICS < 0) remainingRotasForICS = 6 + remainingRotasForICS;
+
+        int currentMinute = DateTime.Now.Minute;
+        Console.WriteLine($"Time remaining until Frost Cavers solos: {remainingRotasForICS * 5 - currentMinute % 5} minutes");
+        Console.WriteLine($"Time remaining until Ruins solos: {remainingRotasForRS * 5 - currentMinute % 5} minutes");
 
         var timer = new System.Timers.Timer(60000);
         timer.Elapsed += new ElapsedEventHandler(DetermineCurrentDungeon);

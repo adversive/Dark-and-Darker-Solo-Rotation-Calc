@@ -7,9 +7,13 @@ public static class MyTimer
 {
     //the dungeons, in the order they occur starting from 0 minutes in the hour
     private static readonly string[] Dungeons = ["GC Duos", "GC Trios", "FC Solos", "FC Trios", "R Solos", "R Duos",];
-    
+    private static int initialOffset;
+
     public static void Start()
     {
+        //line up timer with UTC
+        initialOffset = 60 - DateTime.UtcNow.Second;
+
         var timer = new System.Timers.Timer(1000);
         timer.Elapsed += new ElapsedEventHandler(DetermineCurrentDungeon);
         timer.Enabled = true;
@@ -26,13 +30,20 @@ public static class MyTimer
         var timer = (System.Timers.Timer)source!;
         timer.Interval = 60000;
 
+        //consume the remaining seconds initially to line up our timer with UTC
+        if (initialOffset != 0)
+        {
+            timer.Interval = Math.Max(initialOffset * 1000, 1);
+            initialOffset = 0;
+        }
+
         Console.Clear();
         Console.WriteLine("Press \'q\' to exit");
 
         //since the entire cycle repeats on a 30 minute interval we just keep the minutes to 0-30
         //this lets us just divide the minutes by 5 to get the dungeon index
-        int minutes = e.SignalTime.Minute > 30 ? e.SignalTime.Minute - 30 : e.SignalTime.Minute;
-        int currentDungeonIndex = (int)Math.Floor(minutes  / 5m);
+        int minutes = e.SignalTime.Minute >= 30 ? e.SignalTime.Minute - 30 : e.SignalTime.Minute;
+        int currentDungeonIndex = (int)Math.Floor(minutes / 5m);
 
         var remainingRotasForRS = 4 - currentDungeonIndex;
         if (remainingRotasForRS < 0) remainingRotasForRS = 6 + remainingRotasForRS;

@@ -37,7 +37,7 @@ public static class MyTimer
         if (remainingRotasForICS < 0) remainingRotasForICS = 6 + remainingRotasForICS;
 
         int currentMinute = DateTime.Now.Minute;
-        Console.WriteLine($"Time remaining until Frost Cavers solos: {remainingRotasForICS * 5 - currentMinute % 5} minutes");
+        Console.WriteLine($"Time remaining until Frost Caverns solos: {remainingRotasForICS * 5 - currentMinute % 5} minutes");
         Console.WriteLine($"Time remaining until Ruins solos: {remainingRotasForRS * 5 - currentMinute % 5} minutes");
 
         var timer = new System.Timers.Timer(60000);
@@ -69,7 +69,7 @@ public static class MyTimer
         if (remainingRotasForICS < 0) remainingRotasForICS = 6 + remainingRotasForICS;
 
         Console.WriteLine($"Current rotation: {Dungeons[Count]}");
-        Console.WriteLine($"Time remaining until Frost Cavers solos: {remainingRotasForRS * 5 - minutes % 5} minutes");
-        Console.WriteLine($"Time remaining until Ruins solos: {remainingRotasForICS * 5 - minutes % 5} minutes");
+        Console.WriteLine($"Time remaining until Frost Caverns solos: {remainingRotasForICS * 5 - minutes % 5} minutes");
+        Console.WriteLine($"Time remaining until Ruins solos: {remainingRotasForRS * 5 - minutes % 5} minutes");
     }
 }

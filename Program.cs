@@ -5,42 +5,12 @@ MyTimer.Start();
 
 public static class MyTimer
 {
-    private static int Count = 0;
+    //the dungeons, in the order they occur starting from 0 minutes in the hour
     private static readonly string[] Dungeons = ["GC Duos", "GC Trios", "FC Solos", "FC Trios", "R Solos", "R Duos",];
+    
     public static void Start()
     {
-        while (true)
-        {
-            Console.WriteLine("Enter the current dungeon in rotation:");
-            Console.WriteLine("1. GC Duos, \n2. GC Trios,  \n3. FC Solos, \n4. FC Trios, \n5. R Solos, \n6. R Duos,");
-            var selection = Console.ReadLine();
-
-            int parsedInt;
-            if (int.TryParse(selection, out parsedInt))
-            {
-                if (parsedInt <= 6 && parsedInt >= 1)
-                {
-                    Count = parsedInt - 1;
-                    break;
-                }
-                else { Console.Clear(); Console.WriteLine("Invalid selection\n\n"); }
-            }
-            else { Console.Clear(); Console.WriteLine("Invalid selection\n\n"); }
-        }
-
-        Console.Clear();
-
-        var remainingRotasForRS = 4 - Count;
-        if (remainingRotasForRS < 0) remainingRotasForRS = 6 + remainingRotasForRS;
-
-        var remainingRotasForICS = 2 - Count;
-        if (remainingRotasForICS < 0) remainingRotasForICS = 6 + remainingRotasForICS;
-
-        int currentMinute = DateTime.Now.Minute;
-        Console.WriteLine($"Time remaining until Frost Caverns solos: {remainingRotasForICS * 5 - currentMinute % 5} minutes");
-        Console.WriteLine($"Time remaining until Ruins solos: {remainingRotasForRS * 5 - currentMinute % 5} minutes");
-
-        var timer = new System.Timers.Timer(60000);
+        var timer = new System.Timers.Timer(1000);
         timer.Elapsed += new ElapsedEventHandler(DetermineCurrentDungeon);
         timer.Enabled = true;
 
@@ -52,24 +22,28 @@ public static class MyTimer
 
     public static void DetermineCurrentDungeon(object? source, ElapsedEventArgs e)
     {
+        //set timer to one minute after intial
+        var timer = (System.Timers.Timer)source!;
+        timer.Interval = 60000;
+
         Console.Clear();
         Console.WriteLine("Press \'q\' to exit");
-        int minutes = e.SignalTime.Minute;
-        if (minutes % 5 == 0)
-        {
-            Count++;
-        }
 
-        if (Count > 5) Count = 0;
+        //since the entire cycle repeats on a 30 minute interval we just keep the minutes to 0-30
+        //this lets us just divide the minutes by 5 to get the dungeon index
+        int minutes = e.SignalTime.Minute > 30 ? e.SignalTime.Minute - 30 : e.SignalTime.Minute;
+        int currentDungeonIndex = (int)Math.Floor(minutes  / 5m);
 
-        var remainingRotasForRS = 4 - Count;
+        var remainingRotasForRS = 4 - currentDungeonIndex;
         if (remainingRotasForRS < 0) remainingRotasForRS = 6 + remainingRotasForRS;
 
-        var remainingRotasForICS = 2 - Count;
+        var remainingRotasForICS = 2 - currentDungeonIndex;
         if (remainingRotasForICS < 0) remainingRotasForICS = 6 + remainingRotasForICS;
 
-        Console.WriteLine($"Current rotation: {Dungeons[Count]}");
-        Console.WriteLine($"Time remaining until Frost Caverns solos: {remainingRotasForICS * 5 - minutes % 5} minutes");
-        Console.WriteLine($"Time remaining until Ruins solos: {remainingRotasForRS * 5 - minutes % 5} minutes");
+        Console.WriteLine($"Current rotation: {Dungeons[currentDungeonIndex]}");
+        int remainingFCSmins = remainingRotasForICS * 5 - minutes % 5;
+        int remainingRSmins = remainingRotasForRS * 5 - minutes % 5;
+        Console.WriteLine($"Time remaining until Frost Caverns solos: {(remainingFCSmins <= 0 ? "CURRENT DUNGEON" : $"{remainingFCSmins} minutes")}");
+        Console.WriteLine($"Time remaining until Ruins solos: {(remainingRSmins <= 0 ? "CURRENT DUNGEON" : $"{remainingRSmins} minutes")}");
     }
 }
